@@ -2,8 +2,10 @@ import DayState from '@/components/DayState'
 import Image from 'next/image'
 import Link from 'next/link'
 import { kv } from "@vercel/kv";
+import { deleteHabit } from './actions';
+import DeleteButton from '@/components/DeleteButton';
 
-type Habits ={
+export type Habits ={
   [habit: string]: Record<string, boolean>
 }|null
 
@@ -37,10 +39,9 @@ export default async function Home() {
           <div key={habit} className='flex flex-col gap-2'>
            <div className='flex justify-between items-center'>
             <span className='text-xl font-light text-white font-sans'>{habit}</span>
-            <button>
-              <Image src="/images/trash.svg" alt='Lixeira' width={20} height={20} />
-            </button>
+            <DeleteButton habit={habit} />
            </div>
+           <Link href={`habito/${habit}`} >
            <section className='grid grid-cols-7 bg-neutral-800 rounded-md p-2'>
             {
               sortedWeekDays.map((weekDay, index) => (
@@ -53,6 +54,7 @@ export default async function Home() {
               ))
             }
            </section>
+           </Link>
           </div>
         ))
       }
