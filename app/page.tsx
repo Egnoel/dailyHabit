@@ -1,25 +1,27 @@
 import DayState from '@/components/DayState'
 import Image from 'next/image'
 import Link from 'next/link'
+import { kv } from "@vercel/kv";
 
-export default function Home() {
-  const habits ={
-    'beber água':{
-      "2023-11-13":true,
-      "2023-11-12":false,
-      "2023-11-11":false,
-    },
-    'estudar programação':{
-      "2023-11-13":true,
-      "2023-11-12":false,
-      "2023-11-11":true,
-    },
-  }
+type Habits ={
+  [habit: string]: Record<string, boolean>
+}|null
+
+export default async function Home() {
+  const habits:Habits = await kv.hgetall("habits")
 
   const today = new Date()
   const todayWeekDay = today.getDay()
   const weekDays = ["Dom", "Seg", "Ter", "Quar", "Qui", "Sex", "Sáb"]
   const sortedWeekDays = weekDays.slice(todayWeekDay +1).concat(weekDays.slice(0, todayWeekDay+1))
+
+  const last7Days = weekDays.map((_, index)=>{
+  const date = new Date();
+  date.setDate(date.getDate()-index)
+  return date.toISOString().slice(0, 10)
+  }).reverse()
+
+
 
   return (
     <main className="container relative flex flex-col gap-8 px-4 pt-16">
@@ -46,7 +48,7 @@ export default function Home() {
                   <span  className='font-sans text-xs text-white text-center'>
                   {weekDay}
                 </span>
-                <DayState day={true} />
+                <DayState day={habitStreak[last7Days[index]]} />
                 </div>
               ))
             }
@@ -54,7 +56,7 @@ export default function Home() {
           </div>
         ))
       }
-      <Link href={"novo-habito"} className='fixed text-center bottom-10 w-2/3 left-1/2 
+      <Link href={"novo-habito"} className='fixed text-center bottom-10 w-2/3 left-1/2
       -translate-x-1/2 text-neutral-900 bg-[#45EDAD] font-regular font-display text-2xl p-2 rounded-md'>
         Novo Hábito
         </Link>
